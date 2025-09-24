@@ -6,7 +6,8 @@ const ATMline = new Queue();
 function App() {
   const [formData, setFormData] = useState({
     name: "",
-    monto: ""
+    monto: "",
+    hora: ""
   });
 
   const [Lines, setLines] = useState([]);
@@ -19,7 +20,7 @@ function App() {
     e.preventDefault();
     ATMline.enqueue(formData);
     setLines(ATMline.print());
-    setFormData({ name: "", monto: ""});
+    setFormData({ name: "", monto: "", hora: ""});
   };
 
   return (
@@ -29,6 +30,7 @@ function App() {
       <form onSubmit={handleSubmit}>
         <input name="name" value={formData.name} onChange={handleChange} placeholder="Nombre del usuario" required />
         <input name="monto" value={formData.monto} onChange={handleChange} placeholder="monto de dinero a retirar" required />
+        <input name="hora" value={formData.hora} onChange={handleChange} placeholder="hora de llegada" required />
         <button type="submit">Agregar persona a la fila</button>
       </form>
 
@@ -36,7 +38,7 @@ function App() {
       <ul>
         {Lines.map((line, index) => (
           <li key={index}>
-            <strong>{line.name}</strong> - {line.monto}
+            <strong>{line.name}</strong> - {line.monto} - {"Hora de llegada"} {line.hora}
           </li>
         ))}
       </ul>
