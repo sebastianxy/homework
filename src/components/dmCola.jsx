@@ -1,4 +1,3 @@
-// src/components/DMQueue.jsx
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addToQueue, dequeue } from "./store/dmColaSlice";
