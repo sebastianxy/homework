@@ -4,11 +4,9 @@ import GraphView from "./components/GraphView";
 import AddCity from "./components/AddCity";
 import AddPerson from "./components/AddPerson";
 import CityResidents from "./components/CityResidents";
-import "./App.css";
-
+import styles from "./App.module.scss";
 
 const graphSingleton = new GraphModel();
-
 
 graphSingleton.seed({
   cities: ["Bogotá", "Medellín", "Cali"],
@@ -23,36 +21,29 @@ export default function App() {
   const [selectedCity, setSelectedCity] = useState("");
   const [graphData, setGraphData] = useState(graphSingleton.toD3Format());
 
-  
   const refreshGraph = () => {
     setGraphData({ ...graphSingleton.toD3Format() });
   };
 
-  
   const handleAddCity = (name) => {
     graphSingleton.addCity(name);
     refreshGraph();
   };
 
- 
   const handleAddPerson = (person) => {
     graphSingleton.addPerson(person);
     refreshGraph();
   };
 
-  
   const handleSelectCity = (cityName) => {
     setSelectedCity(cityName);
   };
 
-  
   const residents = selectedCity
     ? graphSingleton.getPeopleInCity(selectedCity)
     : [];
 
-  
   const onClickNode = (nodeId) => {
-
     const city = Array.from(graphSingleton.cities.values()).find(
       (c) => c.id === nodeId
     );
@@ -70,35 +61,37 @@ export default function App() {
   };
 
   return (
-    <div className="App" style={{ padding: 16 }}>
-      <h1>Challenge 16 — Amigos y Ciudades (Grafos)</h1>
+    <div className={styles.appContainer}>
+      <div className={styles.card}>
+        <h1>Challenge 16 — Amigos y Ciudades (Grafos)</h1>
 
-      <div style={{ display: "flex", gap: 24 }}>
-        {/* Panel Izquierdo */}
-        <div style={{ width: 340 }}>
-          <AddCity onAddCity={handleAddCity} />
-          <AddPerson
-            cityOptions={graphSingleton.getCityNames()}
-            onAddPerson={handleAddPerson}
-          />
+        <div className={styles.layout}>
+          {/* Panel Izquierdo */}
+          <div className={styles.leftPanel}>
+            <AddCity onAddCity={handleAddCity} />
+            <AddPerson
+              cityOptions={graphSingleton.getCityNames()}
+              onAddPerson={handleAddPerson}
+            />
 
-          <CityResidents
-            cityNames={graphSingleton.getCityNames()}
-            onSelectCity={handleSelectCity}
-            residents={residents}
-            selectedCity={selectedCity}
-          />
+            <CityResidents
+              cityNames={graphSingleton.getCityNames()}
+              onSelectCity={handleSelectCity}
+              residents={residents}
+              selectedCity={selectedCity}
+            />
 
-          <div style={{ marginTop: 16 }}>
-            <h3>Datos (debug)</h3>
-            <p>Cantidad ciudades: {graphSingleton.cities.size}</p>
-            <p>Cantidad personas: {graphSingleton.people.size}</p>
+            <div className={styles.debugBox}>
+              <h3>Datos (debug)</h3>
+              <p>Cantidad ciudades: {graphSingleton.cities.size}</p>
+              <p>Cantidad personas: {graphSingleton.people.size}</p>
+            </div>
           </div>
-        </div>
 
-        {/* Panel Derecho: Grafo */}
-        <div>
-          <GraphView data={graphData} onClickNode={onClickNode} />
+          {/* Panel Derecho: Grafo */}
+          <div className={styles.rightPanel}>
+            <GraphView data={graphData} onClickNode={onClickNode} />
+          </div>
         </div>
       </div>
     </div>

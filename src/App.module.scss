@@ -1,0 +1,79 @@
+$primary-color: #6c63ff;
+$secondary-color: #a29bfe;
+$white: #fff;
+$text-color: #333;
+$shadow-color: rgba(0, 0, 0, 0.15);
+$font-stack: 'Poppins', sans-serif;
+
+@mixin flex-center($direction: column) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: center;
+  align-items: center;
+}
+
+.appContainer {
+  @include flex-center;
+  background: linear-gradient(135deg, $primary-color, $secondary-color);
+  min-height: 100vh;
+  font-family: $font-stack;
+  color: $text-color;
+}
+
+.card {
+  background: $white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 15px $shadow-color;
+  width: 90%;
+  max-width: 1100px;
+  text-align: center;
+}
+
+h1 {
+  color: $primary-color;
+  margin-bottom: 1.5rem;
+}
+
+.layout {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: 1rem;
+}
+
+.leftPanel {
+  background-color: #f8f9ff;
+  border-radius: 15px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 4px 10px $shadow-color;
+  width: 300px;
+  text-align: left;
+
+  h3 {
+    margin-top: 1rem;
+    color: $primary-color;
+  }
+
+  p {
+    font-size: 0.95rem;
+    margin: 0.3rem 0;
+  }
+}
+
+.rightPanel {
+  flex: 1;
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 1rem;
+  box-shadow: 0 4px 10px $shadow-color;
+}
+
+.debugBox {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background: #f0f0ff;
+  border-radius: 8px;
+  border-left: 4px solid $primary-color;
+}
