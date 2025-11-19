@@ -1,80 +1,78 @@
+import City from "./City";
 
 export default class Graph {
   constructor() {
-    this.cities = new Map(); 
-    this.people = new Map(); 
-    this.nextPersonId = 1;
-    this.nextCityId = 1;
+    this.cities = new Map();
+    this.edges = [];
   }
 
   addCity(name) {
-    if (!name) throw new Error("City name required");
     const key = name.trim();
-    if (this.cities.has(key)) return this.cities.get(key);
-    const city = { id: `city-${this.nextCityId++}`, name: key, type: "city" };
-    this.cities.set(key, city);
-    return city;
+    if (!this.cities.has(key)) {
+      this.cities.set(key, new City(key));
+    }
   }
 
-  addPerson({ name, age, cityName }) {
-    if (!name) throw new Error("Person name required");
-    if (!cityName) throw new Error("City is required");
-    const cityKey = cityName.trim();
-    const city = this.cities.get(cityKey) || this.addCity(cityKey);
-    const person = {
-      id: `person-${this.nextPersonId++}`,
-      name: name.trim(),
-      age: Number(age) || 0,
-      city: city.name,
-      type: "person"
-    };
-    this.people.set(person.id, person);
-    return person;
+  deleteCity(name) {
+    this.cities.delete(name);
+    this.edges = this.edges.filter(e => e.a !== name && e.b !== name);
   }
 
-
-  getPeopleInCity(cityName) {
-    const k = cityName?.trim();
-    if (!k) return [];
-    return Array.from(this.people.values()).filter(p => p.city === k);
+  connectCities(a, b) {
+    if (!this.cities.has(a) || !this.cities.has(b)) return;
+    this.edges.push({ a, b });
   }
 
+  getCity(name) {
+    return this.cities.get(name);
+  }
 
   toD3Format() {
     const nodes = [];
     const links = [];
 
     for (const city of this.cities.values()) {
-      nodes.push({ id: city.id, label: city.name, type: "city", name: city.name });
+      nodes.push({
+        id: city.name,
+        label: city.name,
+        type: "city",
+        color: "#ffcc00"
+      });
     }
 
-    
-    for (const person of this.people.values()) {
-      nodes.push({
-        id: person.id,
-        label: `${person.name} (${person.age})`,
-        type: "person",
-        name: person.name,
-        age: person.age
+    for (const e of this.edges) {
+      links.push({
+        source: e.a,
+        target: e.b
       });
+    }
 
-      const cityObj = this.cities.get(person.city);
-      if (cityObj) {
-        links.push({ source: person.id, target: cityObj.id });
+    for (const city of this.cities.values()) {
+      for (const zone of city.greenZones) {
+        this._addZoneRecursively(nodes, links, zone, city.name);
       }
     }
 
     return { nodes, links };
   }
 
-  
-  getCityNames() {
-    return Array.from(this.cities.values()).map(c => c.name);
-  }
+  _addZoneRecursively(nodes, links, zone, parentId) {
+    const zoneId = `${parentId}-${zone.name}`;
 
-  
-  seed({ cities = [], people = [] } = {}) {
-    for (const c of cities) this.addCity(c);
-    for (const p of people) this.addPerson(p);
+    nodes.push({
+      id: zoneId,
+      label: zone.name,
+      type: "green",
+      color: "#66cc66"
+    });
+
+    links.push({
+      source: parentId,
+      target: zoneId
+    });
+
+    for (const sub of zone.subzones) {
+      this._addZoneRecursively(nodes, links, sub, zoneId);
+    }
   }
 }

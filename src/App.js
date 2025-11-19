@@ -1,98 +1,89 @@
-import React, { useState } from "react";
-import GraphModel from "./models/graph";
-import GraphView from "./components/GraphView";
+//Sebastian Cobos Alvarado
+
+import { useState } from "react";
+import Graph from "./models/Graph";
 import AddCity from "./components/AddCity";
-import AddPerson from "./components/AddPerson";
-import CityResidents from "./components/CityResidents";
+import AddGreenZone from "./components/AddGreenZone";
+import CityStats from "./components/CityStats";
+import GraphView from "./components/GraphView";
 import styles from "./App.module.scss";
 
-const graphSingleton = new GraphModel();
-
-graphSingleton.seed({
-  cities: ["Bogotá", "Medellín", "Cali"],
-  people: [
-    { name: "Ana", age: 28, cityName: "Bogotá" },
-    { name: "Luis", age: 35, cityName: "Medellín" },
-    { name: "María", age: 22, cityName: "Bogotá" },
-  ],
-});
+const graph = new Graph();
 
 export default function App() {
-  const [selectedCity, setSelectedCity] = useState("");
-  const [graphData, setGraphData] = useState(graphSingleton.toD3Format());
+  const [selectedCity, setSelectedCity] = useState(null);
+  const [graphData, setGraphData] = useState(graph.toD3Format());
 
-  const refreshGraph = () => {
-    setGraphData({ ...graphSingleton.toD3Format() });
+  const refresh = () => setGraphData({ ...graph.toD3Format() });
+
+  const addCity = (name) => {
+    graph.addCity(name);
+    refresh();
   };
 
-  const handleAddCity = (name) => {
-    graphSingleton.addCity(name);
-    refreshGraph();
+  const deleteCity = (name) => {
+    graph.deleteCity(name);
+    refresh();
+    if (selectedCity === name) setSelectedCity(null);
   };
 
-  const handleAddPerson = (person) => {
-    graphSingleton.addPerson(person);
-    refreshGraph();
-  };
+  const addZone = (zoneName) => {
+    const city = graph.getCity(selectedCity);
+    if (!city) return console.error("City not found:", selectedCity);
 
-  const handleSelectCity = (cityName) => {
-    setSelectedCity(cityName);
-  };
-
-  const residents = selectedCity
-    ? graphSingleton.getPeopleInCity(selectedCity)
-    : [];
-
-  const onClickNode = (nodeId) => {
-    const city = Array.from(graphSingleton.cities.values()).find(
-      (c) => c.id === nodeId
-    );
-    if (city) {
-      setSelectedCity(city.name);
-      return;
-    }
-
-    const person = graphSingleton.people.get(nodeId);
-    if (person) {
-      alert(
-        `Persona: ${person.name}\nEdad: ${person.age}\nCiudad: ${person.city}`
-      );
-    }
+    city.addGreenZone(zoneName);
+    refresh();
   };
 
   return (
     <div className={styles.appContainer}>
+
       <div className={styles.card}>
-        <h1>Challenge 16 — Amigos y Ciudades (Grafos)</h1>
+        <h1>Parcial 3 — Sebastian Cobos Alvarado</h1>
 
         <div className={styles.layout}>
-          {/* Panel Izquierdo */}
+          
           <div className={styles.leftPanel}>
-            <AddCity onAddCity={handleAddCity} />
-            <AddPerson
-              cityOptions={graphSingleton.getCityNames()}
-              onAddPerson={handleAddPerson}
-            />
+            <h3>Selector de ciudades</h3>
 
-            <CityResidents
-              cityNames={graphSingleton.getCityNames()}
-              onSelectCity={handleSelectCity}
-              residents={residents}
-              selectedCity={selectedCity}
-            />
+            <AddCity onAddCity={addCity} />
 
-            <div className={styles.debugBox}>
-              <h3>Datos (debug)</h3>
-              <p>Cantidad ciudades: {graphSingleton.cities.size}</p>
-              <p>Cantidad personas: {graphSingleton.people.size}</p>
-            </div>
+            <h3>Seleccione una ciudad</h3>
+            <select
+              onChange={(e) => setSelectedCity(e.target.value)}
+              value={selectedCity || ""}
+            >
+              <option value="">Ciudad...</option>
+              {[...graph.cities.keys()].map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+
+            {selectedCity && (
+              <button onClick={() => deleteCity(selectedCity)}>
+                Eliminar ciudad
+              </button>
+            )}
+
+            {selectedCity && (
+              <>
+                <h3>Añadir zona verde</h3>
+                <AddGreenZone city={selectedCity} onAddZone={addZone} />
+
+                
+                <CityStats city={graph.getCity(selectedCity)} />
+              </>
+            )}
           </div>
 
-          {/* Panel Derecho: Grafo */}
           <div className={styles.rightPanel}>
-            <GraphView data={graphData} onClickNode={onClickNode} />
+            <h2>Grafo de las ciudades actuales</h2>
+            <GraphView data={graphData} />
           </div>
         </div>
+
       </div>
     </div>
   );

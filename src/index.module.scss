@@ -1,15 +1,11 @@
-// Variables globales
 $font-stack: 'Poppins', sans-serif;
 $bg-color: linear-gradient(135deg, #6c63ff, #a29bfe);
 $text-color: #333;
-
-// Reset básico
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
 body {
   font-family: $font-stack;
   background: $bg-color;
